@@ -700,14 +700,11 @@ class TaskTagsAPIView(APIView):
 
     def get(self, request, task_id):
         try:
-            # Obtener todas las etiquetas asociadas a la tarea y eliminar duplicados
             task_tags = TaskTagDetails.objects.filter(Task__id=task_id).values('Tag').distinct()
             tag_ids = [detail['Tag'] for detail in task_tags]
 
-            # Obtener las instancias de las etiquetas basadas en los IDs
             tags = Tag.objects.filter(id__in=tag_ids)
 
-            # Utilizar el serializador de Tag en lugar de TaskTagDetailsSerializer
             serializer = TagSerializer(tags, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Task.DoesNotExist:
@@ -1019,7 +1016,6 @@ class ProductView(APIView):
         #No se repita el nombre del producto
         if Product.objects.filter(name=request.data['name']).exists():
             return Response({'error': 'Product with the same name already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
 
         if serializer.is_valid():
             product = serializer.save()

@@ -1351,7 +1351,7 @@ class OperationAPIView(APIView):
         if operation_id:
             operation = get_object_or_404(Operation, id=operation_id, Organization_id=organization_id)
             serializer = OperationSerializer(operation)
-            return Response(serializer.data)1:32 / 5:36
+            return Response(serializer.data)
         else:
             operations = Operation.objects.filter(Organization_id=organization_id)
             serializer = OperationSerializer(operations, many=True)

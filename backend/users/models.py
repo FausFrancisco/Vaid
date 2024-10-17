@@ -143,14 +143,14 @@ class ProductInventoryDetails(models.Model):
 
 
 class Task(models.Model):
-    title = models.CharField(max_length=255, null=False, blank=False)
-    description = models.TextField(default='without_description')
-    startDate = models.DateField(default=timezone.now)
-    endDate = models.DateField(default=timezone.now)
-    startTtime = models.TimeField(default=timezone.now)
-    endTime = models.TimeField(default=timezone.now)
-    image = models.ImageField(upload_to='images/tasks/', null=True, blank=True) 
-    state = models.CharField(max_length=255, default='without_state')
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    date = models.DateField()
+    endDate = models.DateField()
+    time = models.TimeField()
+    endTime = models.TimeField()
+    image = models.ImageField(upload_to='task_images/', null=True, blank=True)
+    state = models.CharField(max_length=255)
     Organization = models.ForeignKey(Organization, on_delete=models.CASCADE) 
 
 
@@ -160,15 +160,15 @@ class TaskPersonDetails(models.Model):
 
 
 class Event(models.Model):
-    title = models.CharField(max_length=255, null=False, blank=False)
-    description = models.TextField(default='without_description')
-    startDate = models.DateField(default=timezone.now)
-    endDate = models.DateField(default=timezone.now)
-    startTtime = models.TimeField(default=timezone.now)
-    endTime = models.TimeField(default=timezone.now)
-    image = models.ImageField(upload_to='images/events/', null=True, blank=True) 
-    state = models.CharField(max_length=255, default='without_state')
-    Organization = models.ForeignKey(Organization, on_delete=models.CASCADE)  
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    date = models.DateField()
+    endDate = models.DateField()
+    time = models.TimeField()
+    endTime = models.TimeField()
+    image = models.ImageField(upload_to='task_images/', null=True, blank=True)
+    state = models.CharField(max_length=255)
+    Organization = models.ForeignKey(Organization, on_delete=models.CASCADE) 
 
 
 class EventReport(models.Model):

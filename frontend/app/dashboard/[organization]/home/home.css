@@ -1,0 +1,101 @@
+body{
+font-family: 'Inter', sans-serif;
+}
+
+
+.welcome-msg{
+    width: 82%;
+    height: 250px;
+    border-radius: 14px;
+    background: linear-gradient(30deg, #0139f2, #1a71f3);
+    margin-top: 50px;
+}
+
+.btn-create-sm{
+  font-size: 15px;
+}
+
+.event-list{
+    margin-top: 100px;
+}
+
+.carousel-arrow{
+    background-color: #fff;
+    font-size: 30px;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex; /* Alinea el contenido en el centro */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    align-items: center; /* Centra el contenido verticalmente */
+}
+  
+  .carousel-arrow:hover,
+  .carousel-arrow:focus {
+    opacity: 1;
+  }
+  
+  .carousel-arrow--prev {
+    left: 0;
+  }
+  
+  .carousel-arrow--next {
+    right: 0;
+  }
+  
+  .carousel-container {
+    width: 100%;
+    padding-block: 16px 32px;
+    overflow: hidden;
+    display: flex;
+    width: 100%;
+    gap: 8px;
+    align-items: center;
+    scroll-snap-type: x mandatory;
+    flex-flow: row nowrap;
+    scroll-behavior: smooth;
+  }
+  
+  .carousel-container::-webkit-scrollbar {
+    height: 14px;
+    width: calc(100% - 48px);
+  }
+  
+  
+  .carousel-slide {
+    flex: 1 0 30%;
+    aspect-ratio: 1;
+    flex-flow: column nowrap;
+    display: flex;
+    border-radius: 14px;
+    height: 350px;
+    cursor: pointer;
+    margin-right: 50px;
+    justify-content: center;
+    max-width: 400px;
+    min-width: 400px;
+    align-items: center;
+    background-color: rgb(255, 255, 255);
+    scroll-snap-align: center;
+    box-shadow: none !important;
+  }
+
+  .h4-wel{
+    color: white;
+    font-size: 35px;
+    font-weight: 600;
+  }
+   .p-wel{
+    color: white;
+    font-size: 20px;
+    font-weight: 500;
+  }
+  
+ 
+  @media (max-width: 600px) {
+    .carousel-slide {
+      flex: 1 0 90%;
+    }
+  }
+  
+    

@@ -9,6 +9,70 @@ const NestedMenu = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [userType, setUserType] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
+  const [organizationId, setOrganizationId] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOrgAccount, setIsOrgAccount] = useState(false);
+  const [isFinished, setIsFinished] = useState(null);
+
+  useEffect(() => {
+    const currentUrl = window.location.href;
+    const url = new URL(currentUrl);
+    const pathSegments = url.pathname.split('/');
+    const dashboardIndex = pathSegments.indexOf('dashboard');
+    if (dashboardIndex !== -1 && pathSegments.length > dashboardIndex + 1) {
+      setOrganizationId(pathSegments[dashboardIndex + 1]);
+    }
+  }, []);
+
+  const checkUserPermissions = async (userId) => {
+    let isAdmin = false;
+    let isOrgAccount = false;
+
+    try {
+        const adminResponse = await fetch(`http://localhost:8000/api/isAdmin/?user_id=${userId}`, { 
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const adminData = await adminResponse.json();
+        isAdmin = adminData
+        setIsFinished(true)
+
+        const orgAccountResponse = await fetch(`http://localhost:8000/api/user/${userId}/check-usertype/`, { 
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const orgAccountData = await orgAccountResponse.json();
+        if (orgAccountData.user_type === 2) {
+            isOrgAccount = true;
+        }
+    } catch (error) {
+        console.error("Error al verificar permisos:", error);
+    }
+
+    return { isAdmin, isOrgAccount };
+};
+
+
+useEffect(() => {
+    const fetchData2 = async () => {
+        try {
+            if (user.id) {
+                const { isAdmin, isOrgAccount } = await checkUserPermissions(user.id);
+                setIsAdmin(isAdmin);
+                setIsOrgAccount(isOrgAccount);
+                console.log(isAdmin, isOrgAccount);
+            }
+        } catch (error) {
+            console.error("Error al verificar permisos:", error);
+        }
+    };
+
+    fetchData2();
+}, [user]);
 
   const checkComplete = async () => {
     if (user?.id) {
@@ -37,57 +101,57 @@ const NestedMenu = () => {
   }, [user]);
 
   useEffect(() => {
-    if (userType === 1) {
+    if (userType === 2 || isAdmin) {
       setMenuItems([
-        { id: "home", label: "Home", icon: "ph-duotone ph-house", link: `/dashboard/${organizationId}/home`, dataPage: "home" },
-        { id: "events", label: "Events", icon: "ph-duotone ph-calendar-blank", link: `/dashboard/${organizationId}/events/view`, dataPage: "events" },
-        { id: "view-tasks", label: "Tasks", icon: "ph-duotone ph-clipboard", link: `/dashboard/${organizationId}/tasks/view`, dataPage: "view-tasks" },
-        { id: "analytics", label: "Analytics", icon: "ph-duotone ph-chart-bar", link: `/dashboard/${organizationId}/analytics`, dataPage: "analytics" }
-       ]);
-    } else {
-      setMenuItems([
-        { id: "home", label: "Home", icon: "ph-duotone ph-house", link: `/dashboard/${organizationId}/home`, dataPage: "home" },
+        { id: "home", label: "Inicio", icon: "ph-duotone ph-house", link: `/dashboard/${organizationId}/home`, dataPage: "home" },
         {
-          type: "HASHMENU", id: 1, label: "Tasks", icon: "ph-duotone ph-clipboard-text", dataPage: null, link: "#",
+          type: "HASHMENU", id: 1, label: "Tareas", icon: "ph-duotone ph-clipboard-text", dataPage: null, link: "#",
           submenu: [
-            { id: "view-tasks", label: "View Tasks", icon: "ph-duotone ph-clipboard", link: `/dashboard/${organizationId}/tasks/view`, dataPage: "view-tasks" },
-            { id: "create-tasks", label: "Create Tasks", icon: "ph-duotone ph-file-plus", link: `/dashboard/${organizationId}/tasks/create`, dataPage: "create-tasks" },
+            { id: "view-tasks", label: "Ver Tareas", icon: "ph-duotone ph-clipboard", link: `/dashboard/${organizationId}/tasks/view`, dataPage: "view-tasks" },
+            { id: "create-tasks", label: "Crear Tareas", icon: "ph-duotone ph-file-plus", link: `/dashboard/${organizationId}/tasks/create`, dataPage: "create-tasks" },
           ],
         },
         {
-          type: "HASHMENU", id: 1, label: "Events", icon: "ph-duotone ph-calendar", dataPage: null, link: "#",
+          type: "HASHMENU", id: 1, label: "Eventos", icon: "ph-duotone ph-calendar", dataPage: null, link: "#",
           submenu: [
-            { id: "view-events", label: "View Events", icon: "ph-duotone ph-calendar-blank", link: `/dashboard/${organizationId}/events/view`, dataPage: "view-events" },
-            { id: "create-events", label: "Create Events", icon: "ph-duotone ph-calendar-plus", link: `/dashboard/${organizationId}/events/create`, dataPage: "create-events" },
+            { id: "view-events", label: "Ver Eventos", icon: "ph-duotone ph-calendar-blank", link: `/dashboard/${organizationId}/events/view`, dataPage: "view-events" },
+            { id: "create-events", label: "Crear Eventos", icon: "ph-duotone ph-calendar-plus", link: `/dashboard/${organizationId}/events/create`, dataPage: "create-events" },
           ],
         },
         {
-          type: "HASHMENU", id: 1, label: "Human Resources", icon: "ph-duotone ph-users-three", dataPage: null, link: "#",
+          type: "HASHMENU", id: 1, label: "Recursos Humanos", icon: "ph-duotone ph-users-three", dataPage: null, link: "#",
           submenu: [
-            { id: "members-list", label: "Members List", icon: "ph-duotone ph-user-list", link: "/dashboard/hr/list", dataPage: "members-list" },
-            { id: "add-members", label: "Add Members", icon: "ph-duotone ph-user-circle-plus", link: "/dashboard/hr/add-members", dataPage: "add-members" },
-            { id: "candidates", label: "Candidates", icon: "ph-duotone ph-users", link: "/dashboard/hr/candidates", dataPage: "candidates" },
+            { id: "members-list", label: "Lista de Miembros", icon: "ph-duotone ph-user-list", link: `/dashboard/${organizationId}/hr/members`, dataPage: "members-list" },
+            { id: "candidates", label: "Lista de Candidatos", icon: "ph-duotone ph-users", link: `/dashboard/${organizationId}/hr/candidates`, dataPage: "candidates" },
           ],
         },
-        { id: "analytics", label: "Analytics", icon: "ph-duotone ph-chart-bar", link: `/dashboard/${organizationId}/analytics`, dataPage: "analytics" },
+        { id: "analytics", label: "Estadisticas", icon: "ph-duotone ph-chart-bar", link: `/dashboard/${organizationId}/analytics`, dataPage: "analytics" },
         {
-          type: "HASHMENU", id: 1, label: "Resources", icon: "ph-duotone ph-package", dataPage: null, link: "#",
+          type: "HASHMENU", id: 1, label: "Recursos", icon: "ph-duotone ph-archive", dataPage: null, link: "#",
           submenu: [
-            { id: "inventory", label: "Inventory", icon: "ph-duotone ph-package", link: `/dashboard/${organizationId}/inventory/general`, dataPage: "inventory" },
-            { id: "headquarter-inv", label: "Headquarter Inventory", icon: "ph-duotone ph-warehouse", link: `/dashboard/${organizationId}/inventory`, dataPage: "headquarter-inv" },
-            { id: "transfer-prod", label: "Transfer Products", icon: "ph-duotone ph-swap", link: `/dashboard/${organizationId}/inventory/transfer`, dataPage: "transfer-prod" },
+            { id: "inventory", label: "Inventario", icon: "ph-duotone ph-package", link: `/dashboard/${organizationId}/inventory/general`, dataPage: "inventory" },
+            { id: "headquarter-inv", label: "Inventario por Sede", icon: "ph-duotone ph-warehouse", link: `/dashboard/${organizationId}/inventory`, dataPage: "headquarter-inv" },
+            // { id: "transfer-prod", label: "Transferir Productos", icon: "ph-duotone ph-swap", link: `/dashboard/${organizationId}/inventory/transfer`, dataPage: "transfer-prod" },
           ],
         },
           {
-          type: "HASHMENU", id: 1, label: "Operations", icon: "ph-duotone ph-coins", dataPage: null, link: "#",
+          type: "HASHMENU", id: 1, label: "Operaciones", icon: "ph-duotone ph-coins", dataPage: null, link: "#",
           submenu: [
-            { id: "reg-don", label: "Register Donations", icon: "ph-duotone ph-hand-heart", link: `/dashboard/${organizationId}/donations`, dataPage: "reg-don" },
-            { id: "reg-ps", label: "Regiser Purchases/Sales", icon: "ph-duotone ph-tag", link: `/dashboard/${organizationId}/donations`, dataPage: "reg-ps" },
+            { id: "reg-don", label: "Registrar Donaciones", icon: "ph-duotone ph-hand-heart", link: `/dashboard/${organizationId}/donations`, dataPage: "reg-don" },
+            { id: "reg-ps", label: "Registrar Compras/Ventas", icon: "ph-duotone ph-tag", link: `/dashboard/${organizationId}/donations`, dataPage: "reg-ps" },
           ],
         },
       ]);
+
+    } else {
+      setMenuItems([
+        { id: "home", label: "Inicio", icon: "ph-duotone ph-house", link: `/dashboard/${organizationId}/home`, dataPage: "home" },
+        { id: "events", label: "Eventos", icon: "ph-duotone ph-calendar-blank", link: `/dashboard/${organizationId}/events/view`, dataPage: "events" },
+        { id: "view-tasks", label: "Tareas", icon: "ph-duotone ph-clipboard", link: `/dashboard/${organizationId}/tasks/view`, dataPage: "view-tasks" },
+       ]);
+
     }
-  }, [userType]);
+  }, [userType, isFinished]);
 
   useEffect(() => {
     // Initialize openMenu state based on local storage or current location

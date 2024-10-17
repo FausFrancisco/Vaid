@@ -24,8 +24,7 @@
 
 .btn-footer-ln{
   border: 1px solid white !important;
-
-}
+} 
 .main-menu .navbar-collapse .mobile-menu li ul {
   opacity: 1 !important;
   visibility: unset !important;
@@ -195,9 +194,37 @@ p.amount span {
 }
 
 .breadcrumb-item + .breadcrumb-item{
-  padding-left: 0px !important;
+  padding-left: 0px !important;  
 }
 
 .page-header .breadcrumb .breadcrumb-item:last-child{
   margin-top: 0px !important;
+}
+
+.hover-button-eye{
+  font-size: 18px;
+  
+}
+.hover-button-eye:hover{
+  color: #2950CE;
+  transition: .2s;
+}
+.hover-button-trash{
+  font-size: 18px;
+}
+
+.page-link{
+  padding: 8px !important;
+  border-radius: 8px !important;
+  border: 1px solid #ffffff00 !important;
+}
+
+.page-link:hover{
+  background-color: #fff !important;
+  color: #696969 !important;
+  border: 1px solid #696969 !important;
+}
+
+.page-link active{
+  border: 1px solid #696969 !important;
 }

@@ -9,6 +9,7 @@ import TableContainer from '@/common/TableContainer';
 import { Button, Card, Col, Form, Row, Modal } from "react-bootstrap";
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Select from 'react-select';
 
 const Page = () => {
     const [showModal, setShowModal] = useState(false);
@@ -18,6 +19,9 @@ const Page = () => {
     const [showTagModalAssign, setShowTagModalAssign] = useState(false); // Nuevo estado para TagModalAssign
     const [organizationId, setOrganizationId] = useState("");
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const [allTags, setAllTags] = useState([]);
+    const [selectedTags, setSelectedTags] = useState([]);
+
 
     const handleShowInviteModal = () => setShowInviteModal(true);
     const handleCloseInviteModal = () => setShowInviteModal(false);
@@ -32,6 +36,35 @@ const Page = () => {
         }
     }, []);
 
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/api/organizations/${organizationId}/tags/`);
+                const options = response.data.map(tag => ({ value: tag.id, label: tag.name }));
+                console.log("Fetched Tags:", options);  // Debug: log fetched tags
+                setAllTags(options);
+            } catch (error) {
+                console.error('Error fetching tags:', error);
+            }
+        };
+    
+        fetchTags();
+    }, [organizationId]);
+    
+
+    const handleTagChange = (selectedOptions) => {
+        setSelectedTags(selectedOptions || []);
+    };
+    
+    const filteredCandidates = useMemo(() => {
+        if (selectedTags.length === 0) return candidates;
+        return candidates.filter(candidate =>
+            candidate.tags && Array.isArray(candidate.tags) && candidate.tags.some(tag => 
+                selectedTags.map(t => t.value).includes(tag.id))
+        );
+    }, [candidates, selectedTags]);
+    
     useEffect(() => {
         const fetchData = async () => {
             if (organizationId) {
@@ -99,7 +132,7 @@ const Page = () => {
         () => [
             {
                 header: "Nombre",
-                enableColumnFilter: false,
+                enableColumnFilter: false, 
                 accessorKey: "name",
                 cell: (cellProps) => {
                     const row = cellProps.row.original;
@@ -119,13 +152,13 @@ const Page = () => {
                 enableColumnFilter: false,
                 cell: (cellProps) => {
                     const dayMap = {
-                        'Mon': 'Lunes',
-                        'Tue': 'Martes',
-                        'Wed': 'Miércoles',
-                        'Thu': 'Jueves',
-                        'Fri': 'Viernes',
-                        'Sat': 'Sábado',
-                        'Sun': 'Domingo',
+                        'Lun': 'Lunes',
+                        'Mar': 'Martes',
+                        'Mie': 'Miércoles',
+                        'Jue': 'Jueves',
+                        'Vie': 'Viernes',
+                        'Sab': 'Sábado',
+                        'Dom': 'Domingo',
                     };
 
                     let availableDays = cellProps.getValue();
@@ -241,14 +274,33 @@ const Page = () => {
                         <Card.Body>
                             <div className="container">
                                 <div className="row">
-                                    <button className="col-md-2 btn-tags-create theme-btn style-two" onClick={() => handleShowInviteModal()}>Invitar<span>
+                                <button className="col-md-2 btn-tags-create theme-btn style-two" onClick={() => handleShowInviteModal()}>Invitar<span>
                                     <i className="ph-duotone ph-user"></i> 
                                         </span></button>
-                                    <div className="col-md-8"></div>
                                     <button className="col-md-2 btn-tags-create theme-btn style-one" onClick={() => handleShowTagModal()}>Etiquetas <span>
                                     <i className="ph-duotone ph-tag"></i> 
                                         </span></button>
                                 </div>
+                                <div className="row">
+                                <div className="col-md-5"></div>
+                                    <Col md={3}>
+                                    {candidates.length === 0 ? (
+                            <></>
+                                ) : (
+                                        <Select
+                                            isMulti
+                                            name="tags"
+                                            options={allTags}
+                                            className="basic-multi-select bms"
+                                            classNamePrefix="select"
+                                            placeholder="Filtrar por etiquetas"
+                                            onChange={handleTagChange}
+                                            value={selectedTags}
+                                        />
+                                )}
+                                    </Col>
+                                </div>
+
                             </div>
                         {candidates.length === 0 ? (
                             <div className="text-center mt-4">
@@ -257,7 +309,7 @@ const Page = () => {
                         ) : (
                             <TableContainer
                                 columns={columns}
-                                data={candidates}
+                                data={filteredCandidates}
                                 isGlobalFilter={true}
                                 isBordered={false}
                                 customPageSize={10}
@@ -284,7 +336,24 @@ const Page = () => {
                             <p><strong>Calle:</strong> {selectedCandidate.street_name}</p>
                             <p><strong>Profesión:</strong> {selectedCandidate.profession}</p>
                             <p><strong>Experiencia:</strong> {selectedCandidate.experience}</p>
-                            <p><strong>Temas:</strong> {selectedCandidate.topics}</p>
+                            <p>
+                                <strong>Temas:</strong> {
+                                    selectedCandidate.topics
+                                        ? (() => {
+                                            try {
+                                                // Intenta convertir la cadena a un array
+                                                const topicsArray = JSON.parse(selectedCandidate.topics.replace(/'/g, '"'));
+                                                // Une los elementos con una coma y espacio
+                                                return Array.isArray(topicsArray) ? topicsArray.join(', ') : selectedCandidate.topics;
+                                            } catch (error) {
+                                                console.error('Error al parsear los temas:', error);
+                                                // Si hay un error al parsear, devuelve la cadena original sin cambios
+                                                return selectedCandidate.topics;
+                                            }
+                                        })()
+                                        : "No hay temas"
+                                }
+                            </p>
                             <p><strong>Objetivos:</strong> {selectedCandidate.goals}</p>
                             <p><strong>Motivaciones:</strong> {selectedCandidate.motivations}</p>
                         </div>
